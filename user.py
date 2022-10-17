@@ -22,11 +22,3 @@ class User:
         with con: con.execute('UPDATE users SET auth = TRUE WHERE username == ?', [self.username])
     def singOut(self):
         with con: con.execute('UPDATE users SET auth = FALSE WHERE username == ?', [self.username])
-    # def singIn(self, password):
-    #     if con.execute('SELECT password FROM users WHERE username == ?', [self.username]).fetchone()[0] != password:
-    #         return False
-    #     with con:
-    #         con.execute('UPDATE users SET auth = TRUE WHERE username == ?', [self.username])
-    #     return True
-    # def singOut(self):
-    #     with con: con.execute('UPDATE users SET auth = FALSE WHERE username == ?', [self.username])
