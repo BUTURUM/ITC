@@ -1,33 +1,57 @@
+from time import sleep
 from user import User
-import dialog
+from dialog import *
+from random import randrange
 
-def authPlayer():
-    print('please type info about you account')
-    user = User(dialog.noemtry('type username: ', warn='username cannot be empty string'))
-    if user.registered:
-        if dialog.confirm('This user already registered. Do you want sing out? y/n '):
-            user.singOut(); exit()
-        return user
-    if not user.exists:
-        if dialog.confirm('this user not exist. Do you want to register? y/n '):
-            user.create(dialog.noemtry('type password: ', warn='password cannot be empty string'))
+def authUser():
+    print('please type your user info')
+    user = User(noemtry('type username: ', warn='username cannot be empty string')); status = user.status
+    if status:
+        if singOut(user): exit()
+    else:
+        if status is None:
+            if not singUp(user):
+                print('Program cannot work with out your user auth'); return authUser()
         else:
-            print('you have to have account to use this program.'); exit()
-        return user
-    while True:
-        if user.check(dialog.noemtry('type password: ', warn='password cannot be empty string')):
-            user.singIn(); break
-        print('wrong password. try other.'); continue
+            singIn(user)
+    return user
+def authOpponent():
+    print('please type your opponent info')
+    user = User(noemtry('type username: ', warn='username cannot be empty string')); status = user.status
+    if not status:
+        if status is None:
+            if not singUp(user):
+                print('Program cannot work with out your opponent auth'); return authOpponent()
+        else:
+            singIn(user)
     return user
 
-def authOpponent():
-    print('please type info about you opponent account')
-    user = User(dialog.noemtry('type username: ', warn='username cannot be empty string'))
-    if not user.exists:
-        print('this user do not exists. Try another.'); return authOpponent()
-    if not user.registered:
-        while True:
-            if user.check(dialog.noemtry('type password: ', warn='password cannot be empty string')): break
-    return user
-    
-player = authPlayer(); opponent = authOpponent()
+user = authUser(); opponent = authOpponent()
+
+def throw(user: User):
+    d1 = randrange(1, 6, 1); d2 = randrange(1, 6, 1); amount = d1 + d2
+    print('player {0} throw dice: {1} + {2} = {3}'.format(user.username, d1, d2, amount))
+    if amount % 2:
+        amount -= 5; print('minus 5 points - not event amount')
+    else:
+        amount += 10; print('plus 10 points - event amount')
+    user.score += amount
+def results(user: User):
+    print('{0} has {1} points'.format(user.username, user.score))
+rounds = 0
+while True:
+    if rounds >= 4:
+        if user.score == opponent.score:
+            continue
+        print('\n')
+        results(user); results(opponent)
+        print('\n')
+        if user.score > opponent.score:
+            print('{0} win with {1} points'.format(user.username, user.score))
+        else:
+            print('{0} win with {1} points'.format(opponent.username, opponent.score))
+        break
+    print('\nround {0}: '.format(rounds + 1))
+    throw(user); throw(opponent)
+    rounds += 1
+    sleep(1.5)

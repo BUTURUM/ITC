@@ -4,16 +4,19 @@ class User:
     def __init__(self, username) -> None:
         if type(username) != str or not len(username.strip()):
             raise Exception()
-        self.username = username
+        self.username = username; self.__score = 0
     @property
-    def registered(self):
+    def score(self):
+        return self.__score
+    @score.setter
+    def score(self, x):
+        self.__score = x if x >= 0 else 0
+    @property
+    def status(self):
         try:
-            return con.execute('SELECT auth FROM users WHERE username == ?', [self.username]).fetchone()[0]
+            return bool(con.execute('SELECT auth FROM users WHERE username == ?', [self.username]).fetchone()[0])
         except:
-            return False
-    @property
-    def exists(self):
-        return con.execute('SELECT COUNT(*) FROM users WHERE username == ?', [self.username]).fetchone()[0]
+            return None
     def check(self, password):
         return con.execute('SELECT (password == ?) FROM users WHERE username == ?', [password, self.username]).fetchone()[0]
     def create(self, password):
